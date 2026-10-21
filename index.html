@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#12301d">
+<title>Billionaire Bucks Claim</title>
+<meta name="description" content="Claim your share of the billionaire kid money. Some effort required.">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One&family=Courier+Prime:wght@400;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one phone-width column holding a stamped claim form; sticky "pending balance" bar on top. Single money-paper look. */
+:root{
+  --paper:#e3eedb; --ink:#12301d; --money:#2e8b4a; --gold:#ffcf33; --pink:#ff3d7f;
+  --stamp:#d7263d; --card:#fbfdf8; --muted:#4f6b58; --white:#ffffff; --bad:#fff0f2; --good:#e6f6ea;
+  --display:"Bowlby One", Impact, "Arial Black", sans-serif;
+  --body:"Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+  --mono:"Courier Prime", "Courier New", monospace;
+  color-scheme: light;
+}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+[hidden]{display:none!important}
+html,body{height:100%}
+img{max-width:100%}
+body{margin:0;
+  background:var(--paper); color:var(--ink); font-family:var(--body); font-size:17px; line-height:1.45;
+  background-image:repeating-linear-gradient(45deg, rgba(46,139,74,.07) 0 2px, transparent 2px 14px);
+  -webkit-tap-highlight-color:transparent; overflow-x:hidden;
+}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+button{font:inherit;touch-action:manipulation;cursor:pointer}
+
+.bar{
+  position:sticky; top:env(safe-area-inset-top,0px); z-index:20; background:var(--ink); color:var(--paper);
+  padding-block:10px; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  display:flex; justify-content:space-between; align-items:center; gap:12px; font-family:var(--mono); font-size:12px; letter-spacing:.06em; text-transform:uppercase;
+}
+.bar b{display:block;font-weight:400}
+.bal{font-family:var(--display);font-size:20px;color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:0;text-align:right}
+.bal small{display:block;font-family:var(--mono);font-size:10px;color:var(--paper);letter-spacing:.08em}
+
+main{max-width:480px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.card{background:var(--card);border:3px solid var(--ink);border-radius:4px;box-shadow:6px 6px 0 var(--ink);padding:20px 18px;display:flex;flex-direction:column;gap:14px;position:relative}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--display);font-weight:400;line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(30px,9vw,40px)}
+h2{font-size:clamp(24px,7vw,30px)}
+p{margin:0}
+.fine{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.msg{min-height:1.4em;font-weight:700;color:var(--stamp)}
+.msg.ok{color:var(--money)}
+
+.btn{appearance:none;border:3px solid var(--ink);background:var(--gold);color:var(--ink);font-family:var(--display);font-size:19px;line-height:1.1;padding:14px 18px;border-radius:999px;box-shadow:0 4px 0 var(--ink);min-height:56px;transition:font-size .2s, transform .05s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink)}
+.btn.alt{background:var(--card)}
+.btn.pink{background:var(--pink);color:var(--white)}
+.btn:disabled{opacity:.4;transform:none}
+.btn:focus-visible,input:focus-visible,.tile:focus-visible{outline:3px solid var(--pink);outline-offset:3px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>.btn{flex:1 1 120px}
+
+input[type=text]{width:100%;box-sizing:border-box;font-family:var(--mono);font-size:20px;padding:12px;border:3px solid var(--ink);border-radius:4px;background:var(--white);color:var(--ink)}
+label.fine{margin-bottom:-8px}
+
+.arena{position:relative;height:230px;border:2px dashed var(--muted);border-radius:4px;overflow:hidden}
+.arena .btn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);white-space:nowrap;transition:left .18s ease-out, top .18s ease-out}
+
+.ager{display:flex;align-items:center;justify-content:center;gap:16px}
+.ager .btn{width:64px;height:64px;padding:0;font-size:30px}
+.ager output{font-family:var(--display);font-size:56px;min-width:2.4ch;text-align:center;font-variant-numeric:tabular-nums}
+
+.terms{height:240px;overflow-y:auto;border:2px solid var(--ink);padding:12px;font-family:var(--mono);font-size:13px;background:var(--white);border-radius:4px;-webkit-overflow-scrolling:touch}
+.terms ol{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px}
+.check{display:flex;gap:12px;align-items:center;font-weight:700}
+.check input{width:28px;height:28px;accent-color:var(--money);flex:none}
+
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tile{aspect-ratio:1;max-width:100%;font-size:clamp(34px,11vw,48px);border:3px solid var(--ink);background:var(--white);border-radius:4px;padding:0;color:var(--ink)}
+.tile.on{background:var(--gold);box-shadow:inset 0 0 0 4px var(--money)}
+
+.rules{display:flex;flex-direction:column;gap:8px}
+.rule{border:2px solid var(--stamp);background:var(--bad);padding:8px 10px;border-radius:4px;font-size:15px}
+.rule.ok{border-color:var(--money);background:var(--good)}
+.rule b{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;display:block}
+
+.prog{height:24px;border:3px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--white)}
+.prog>i{display:block;height:100%;width:0;background:repeating-linear-gradient(-45deg,var(--money) 0 10px,#3fa95f 10px 20px);transition:width .2s}
+.big{font-family:var(--display);font-size:44px;text-align:center;font-variant-numeric:tabular-nums;line-height:1}
+
+.tap{align-self:center;width:190px;height:190px;border-radius:50%;font-size:72px;background:var(--gold);border:4px solid var(--ink);box-shadow:0 6px 0 var(--ink);padding:0;user-select:none;-webkit-user-select:none}
+.tap:active{transform:translateY(5px);box-shadow:0 1px 0 var(--ink)}
+.float{position:fixed;pointer-events:none;font-family:var(--display);color:var(--money);font-size:22px;z-index:40;animation:up .8s ease-out forwards}
+@keyframes up{to{transform:translateY(-70px);opacity:0}}
+
+.hold{align-self:center;width:210px;height:210px;border-radius:50%;border:4px solid var(--ink);padding:0;
+  background:conic-gradient(var(--money) calc(var(--p,0) * 1turn), var(--white) 0);
+  display:grid;place-items:center;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.hold span{width:156px;height:156px;border-radius:50%;background:var(--gold);border:3px solid var(--ink);display:grid;place-items:center;text-align:center;font-family:var(--display);font-size:19px;line-height:1.1;padding:12px;box-sizing:border-box;color:var(--ink)}
+
+.opts{display:flex;flex-direction:column;gap:10px}
+.opts .btn{text-align:left}
+.opts .btn.on{background:var(--money);color:var(--white)}
+
+.cert{border-width:5px;box-shadow:6px 6px 0 var(--money);outline:2px solid var(--ink);outline-offset:-12px;padding:28px 24px}
+.cert dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:15px}
+.cert dt{font-family:var(--mono);font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding-top:2px}
+.cert dd{margin:0;font-weight:700;min-width:0}
+.stamp{align-self:flex-end;transform:rotate(-9deg);border:4px solid var(--stamp);color:var(--stamp);font-family:var(--display);font-size:24px;padding:4px 12px;border-radius:6px;letter-spacing:.04em;margin-block:-4px;animation:thunk .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes thunk{from{transform:rotate(-9deg) scale(2.4);opacity:0}}
+
+.modal-wrap{position:fixed;inset:0;z-index:50;background:rgba(18,48,29,.65);display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+.modal{background:var(--card);border:3px solid var(--ink);border-radius:4px;box-shadow:6px 6px 0 var(--gold);padding:20px 18px;width:100%;max-width:380px;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;animation:pop .25s ease-out}
+@keyframes pop{from{transform:scale(.85);opacity:0}}
+.ad{background:var(--ink);color:var(--paper);border-radius:4px;padding:18px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.ad h2{color:var(--gold)}
+.stars{display:flex;justify-content:center;gap:6px}
+.stars button{background:none;border:0;font-size:38px;padding:0;color:var(--muted);line-height:1}
+.stars button.on{color:var(--gold);text-shadow:0 0 0 var(--ink)}
+
+.cookie{position:fixed;left:0;right:0;bottom:0;z-index:45;background:var(--ink);color:var(--paper);
+  padding-top:14px;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:10px}
+.cookie .btn{min-height:46px;font-size:16px}
+
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--pink);color:var(--white);border:3px solid var(--ink);border-radius:4px;padding:12px 16px;font-weight:700;width:max-content;max-width:calc(100% - 40px);box-sizing:border-box;text-align:center;box-shadow:4px 4px 0 var(--ink)}
+.confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:55}
+
+.shake{animation:shake .4s}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+footer{max-width:480px;margin:0 auto;padding-bottom:24px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));text-align:center}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div><b>Dept. of Kid Money</b>Claim portal v0.0.1</div>
+  <div class="bal" id="bal">$0.00<small>pending balance</small></div>
+</div>
+<main id="app"></main>
+<footer><p class="fine">A family joke. No real money, no real shares, and nothing you type leaves your phone.</p></footer>
+<div id="toast" role="status" hidden></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const S = { name:'', age:42, step:0, fakeTotal:7, fee:'1 hug', done:false };
+let bal = 0;
+
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms) } catch(e){} };
+const reduced = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function toast(t, ms=2800){
+  const el = $('#toast'); el.textContent = t; el.hidden = false;
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, ms);
+}
+function shake(el){ el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); buzz(80); }
+function render(s){ app.innerHTML = s; window.scrollTo(0,0); }
+function card(inner, cls=''){
+  const total = Math.max(S.fakeTotal, S.step + 2);
+  return `<section class="card ${cls}"><div class="eyebrow">Form DOGE-${String(S.step+1).padStart(3,'0')} · Step ${S.step+1} of ${total}</div>${inner}</section>`;
+}
+function modal(inner){
+  const w = document.createElement('div');
+  w.className = 'modal-wrap';
+  w.innerHTML = `<div class="modal" role="dialog" aria-modal="true">${inner}</div>`;
+  document.body.appendChild(w);
+  return w;
+}
+
+// Pending balance: wanders around, means nothing
+setInterval(() => {
+  if (S.done) return;
+  bal = Math.max(0, bal + (Math.random() - 0.45) * 4.2);
+  $('#bal').firstChild.nodeValue = '$' + bal.toFixed(2);
+}, 900);
+
+/* ---------- steps ---------- */
+
+function intro(){
+  render(card(`
+    <h1>Uncle Elon owes you money.</h1>
+    <p>Every American kid is getting shares. You are somebody's kid. You qualify. Probably.</p>
+    <p><b>Estimated payout: $1,000,000,000*</b></p>
+    <div class="arena" id="arena"><button class="btn pink" id="claim">CLAIM MY MONEY</button></div>
+    <p class="msg" id="m"></p>
+    <p class="fine">*Before taxes, fees, vibes, and the heat death of the universe.</p>`));
+  const b = $('#claim'), a = $('#arena'), m = $('#m');
+  const lines = ['Too slow.', 'Nope.', 'The money is shy.', 'Almost had it!', 'Okay, okay. Last one.'];
+  let dodges = 0, justDodged = false;
+  b.addEventListener('pointerdown', () => {
+    if (dodges >= lines.length) return;
+    justDodged = true;
+    m.textContent = lines[dodges++];
+    b.style.transform = 'none';
+    b.style.left = Math.random() * (a.clientWidth - b.offsetWidth) + 'px';
+    b.style.top = Math.random() * (a.clientHeight - b.offsetHeight) + 'px';
+    buzz(30);
+  });
+  b.addEventListener('click', () => { if (justDodged) { justDodged = false; return; } next(); });
+}
+
+function age(){
+  render(card(`
+    <h2>Confirm you are a child.</h2>
+    <p>Set your age with the official age adjuster. It was built by an intern.</p>
+    <div class="ager">
+      <button class="btn alt" id="minus" aria-label="Subtract 3 years">−</button>
+      <output id="ageOut">${S.age}</output>
+      <button class="btn alt" id="plus" aria-label="Add 7 years">+</button>
+    </div>
+    <p class="fine" style="text-align:center">+ adds 7 years. − removes 3. Budget cuts.</p>
+    <button class="btn" id="ok">This is my age</button>
+    <p class="msg" id="m"></p>`));
+  const out = $('#ageOut');
+  $('#plus').onclick = () => { S.age += 7; out.value = S.age; };
+  $('#minus').onclick = () => { S.age = Math.max(0, S.age - 3); out.value = S.age; };
+  $('#ok').onclick = () => {
+    const a = S.age, m = $('#m');
+    if (a === 0) { m.textContent = 'Unborn children are on the waitlist.'; return shake(m); }
+    if (a > 120) { m.textContent = `${a}? Sir, you are a tortoise.`; return shake(m); }
+    m.className = 'msg ok';
+    m.textContent = a < 18 ? 'An actual child! Suspicious. Approved.'
+      : a < 40 ? 'Child at heart detected. Approved.'
+      : a < 70 ? 'Inner child located (deep down). Approved.'
+      : 'You are still somebody\'s kid. Approved.';
+    setTimeout(next, 1300);
+  };
+}
+
+function name(){
+  render(card(`
+    <h2>What do they call you?</h2>
+    <p>First name only. We are a professional organization.</p>
+    <label class="fine" for="nm">Legal first name</label>
+    <input type="text" id="nm" autocomplete="off" autocapitalize="words" maxlength="24">
+    <button class="btn" id="ok">Submit name</button>
+    <p class="msg" id="m"></p>
+    <div id="dym" class="card" style="box-shadow:none" hidden></div>`));
+  $('#ok').onclick = () => {
+    const v = $('#nm').value.trim(), m = $('#m');
+    if (!v) { m.textContent = 'Blank names are reserved for Elon\'s next kid.'; return shake($('#nm')); }
+    const cap = s => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase();
+    const variants = [`X Æ ${v}-12`, cap([...v].reverse().join('')), `${v}ius Moneybags III`, 'Kevin'];
+    $('#ok').hidden = true; $('#nm').disabled = true; m.textContent = '';
+    const dym = $('#dym'); dym.hidden = false;
+    let i = 0;
+    const show = () => {
+      dym.innerHTML = `<p>Our system detected a typo. Did you mean <b>${esc(variants[i])}</b>?</p>
+        <div class="row"><button class="btn" id="y" style="font-size:${19 + i*5}px">Yes</button>
+        <button class="btn alt" id="n" style="font-size:${Math.max(9, 19 - i*4)}px;min-height:${Math.max(30, 56 - i*9)}px;flex:${Math.max(.2, 1 - i*.27)} 1 40px">No</button></div>`;
+      $('#y').onclick = () => { S.name = variants[i]; toast(`Welcome, ${S.name}. This is your name now.`); next(); };
+      $('#n').onclick = () => {
+        if (++i >= variants.length) { S.name = v; toast('Fine. We will use your boring real name.'); return next(); }
+        show();
+      };
+    };
+    show();
+  };
+}
+
+function terms(){
+  const clauses = [
+    'The "Claimant" (you) agrees that money is a social construct.',
+    'Payment will be made in shares, half-shares, or a firm handshake.',
+    'Shares may be converted into Dogecoin, Tesla floor mats, or a strongly worded post at any time.',
+    'Claimant must eat at least one vegetable before funds are released.',
+    'Claimant agrees to call Grandma this week. She misses you.',
+    'Funds unlock on the Claimant\'s 18th birthday, or when Mars gets its first Costco, whichever comes later.',
+    'If the Claimant is already over 18, see clause 6 and think about what you\'ve done.',
+    'All payouts are rounded to the nearest $0.00.',
+    'Siblings may not claim each other\'s money, no matter how much they whine.',
+    'Claimant waives the right to say "this is a scam" out loud at the dinner table.',
+    'The Company reserves the right to rename the Company at 3 a.m. for no reason.',
+    'This agreement is legally binding in all fifty states, Puerto Rico, and the Moon.',
+    'Any arguments about the money will be settled by rock, paper, scissors, best of seven.',
+    'Claimant consents to receive between zero and infinity follow-up emails.',
+    'No refunds. There was nothing to refund.',
+    'Claimant agrees that the font on this page was a good choice.',
+    'Clause 17 has been left intentionally confusing for reasons of clause 17.',
+    'If you are still reading, you are the kind of person who reads terms. We respect that. Nobody else does.',
+    'Claimant must do the dishes tonight. This is the real price.',
+    'By scrolling this far you have already agreed. The checkbox below is decorative.'
+  ];
+  render(card(`
+    <h2>Terms &amp; Conditions</h2>
+    <p>Please read all 20 clauses carefully. Our lawyers will know if you didn't.</p>
+    <div class="terms" id="box" tabindex="0"><ol>${clauses.map(c => `<li>${c}</li>`).join('')}</ol></div>
+    <label class="check"><input type="checkbox" id="agree" disabled> I read every single word</label>
+    <p class="fine" id="hint">Scroll to the bottom to unlock the checkbox.</p>
+    <p class="msg" id="m"></p>
+    <button class="btn" id="ok" disabled>I agree to everything forever</button>`));
+  const box = $('#box'), agree = $('#agree'), m = $('#m');
+  let tries = 0;
+  const onScroll = () => {
+    if (box.scrollTop + box.clientHeight >= box.scrollHeight - 8) { agree.disabled = false; $('#hint').textContent = 'Unlocked. Took you long enough.'; }
+  };
+  box.addEventListener('scroll', onScroll);
+  agree.onchange = () => {
+    if (!agree.checked) return $('#ok').disabled = true;
+    if (++tries === 1) {
+      setTimeout(() => {
+        agree.checked = false; agree.disabled = true;
+        m.textContent = 'Our lawyers detected you skimmed. Read it again. Slower.';
+        $('#hint').textContent = 'Scroll to the bottom to unlock the checkbox. Again.';
+        shake(box); box.scrollTop = 0;
+      }, 500);
+      return;
+    }
+    m.className = 'msg ok'; m.textContent = 'Lawyers satisfied. For now.';
+    $('#ok').disabled = false;
+  };
+  $('#ok').onclick = next;
+}
+
+function captcha(){
+  let round = 1;
+  const draw = () => {
+    const tiles = round === 1
+      ? ['💵','🥔','💵','🚀','💵','🥔','🥔','💵','🚀']
+      : Array(9).fill('🥔');
+    render(card(`
+      <h2>Prove you're not a robot.</h2>
+      <p><b>${round === 1 ? 'Tap every square that contains money.' : 'Tap every potato that is secretly money.'}</b></p>
+      <div class="grid">${tiles.map((t,i) => `<button class="tile" data-i="${i}" aria-pressed="false">${t}</button>`).join('')}</div>
+      <button class="btn" id="ok">Verify</button>
+      <p class="msg" id="m"></p>`));
+    app.querySelectorAll('.tile').forEach(t => t.onclick = () => {
+      t.classList.toggle('on'); t.setAttribute('aria-pressed', t.classList.contains('on'));
+    });
+    $('#ok').onclick = () => {
+      const m = $('#m'), picked = app.querySelectorAll('.tile.on').length;
+      if (round === 1) {
+        m.textContent = picked ? 'Wrong. One of the potatoes was a crypto potato.' : 'You selected nothing. Robots love selecting nothing.';
+        shake(app.querySelector('.grid'));
+        setTimeout(() => { round = 2; draw(); toast('New challenge loaded. Good luck.'); }, 1800);
+      } else if (!picked) {
+        m.textContent = 'Pick at least one potato. Use your heart.'; shake(app.querySelector('.grid'));
+      } else {
+        m.className = 'msg ok';
+        m.textContent = picked === 9 ? 'All of them. Correct. You are wise beyond your years.' : `${picked} potato${picked > 1 ? 'es' : ''}. Close enough. You are probably human.`;
+        setTimeout(next, 1500);
+      }
+    };
+  };
+  draw();
+}
+
+function password(){
+  const month = new Date().toLocaleString('en-US', { month:'long' });
+  const digitSum = v => (v.match(/\d/g) || []).reduce((a,d) => a + +d, 0);
+  const rules = [
+    ['Must be at least 6 characters.', v => [...v].length >= 6],
+    ['Must include a number.', v => /\d/.test(v)],
+    ['Must include a capital letter.', v => /[A-Z]/.test(v)],
+    ['Must include an emoji. Billionaires only speak in emoji.', v => /\p{Extended_Pictographic}/u.test(v)],
+    ['The digits must add up to 20.', v => digitSum(v) === 20],
+    ['Must include a planet. Pluto doesn\'t count. Pluto knows what it did.', v => /mercury|venus|earth|mars|jupiter|saturn|uranus|neptune/i.test(v)],
+    [`Must include the current month.`, v => v.toLowerCase().includes(month.toLowerCase())],
+    ['Must include the word "please". Manners.', v => /please/i.test(v)],
+    ['Must be shorter than 36 characters. We are not made of storage.', v => [...v].length < 36],
+  ];
+  render(card(`
+    <h2>Create a Money Password.</h2>
+    <p>Required to protect your fortune. Do not use a real password. Do not use this one anywhere either.</p>
+    <label class="fine" for="pw">Money password</label>
+    <input type="text" id="pw" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+    <p class="fine" id="sum"></p>
+    <div class="rules" id="rules"></div>
+    <button class="btn" id="ok" disabled>Lock in password</button>`));
+  let shown = 0;
+  const pw = $('#pw');
+  const check = () => {
+    const v = pw.value;
+    const res = rules.map(r => r[1](v));
+    const firstFail = res.indexOf(false);
+    if (v) shown = Math.max(shown, firstFail === -1 ? rules.length : firstFail + 1);
+    $('#rules').innerHTML = rules.slice(0, shown).map((r,i) => ({r,i})).reverse()
+      .map(({r,i}) => `<div class="rule ${res[i] ? 'ok' : ''}"><b>Rule ${i+1} ${res[i] ? '✓' : '✗'}</b>${r[0]}</div>`).join('');
+    $('#sum').textContent = shown >= 5 ? `Digit total: ${digitSum(v)} / 20` : '';
+    $('#ok').disabled = firstFail !== -1 || !v;
+  };
+  pw.addEventListener('input', check);
+  $('#ok').onclick = () => { toast('Password strength: TOO STRONG. We changed it to "password1".', 3200); next(); };
+}
+
+function mining(){
+  const goal = 40;
+  let n = 0, crashed = false;
+  render(card(`
+    <h2>Mine your share.</h2>
+    <p>Shares don't grow on trees. Tap the money bag ${goal} times to extract it from the blockchain.</p>
+    <div class="big" id="cnt">0 / ${goal}</div>
+    <div class="prog"><i id="bar"></i></div>
+    <button class="tap" id="tap" aria-label="Mine">💰</button>
+    <p class="msg" id="m"></p>`));
+  const upd = () => { $('#cnt').textContent = `${n} / ${goal}`; $('#bar').style.width = (n / goal * 100) + '%'; };
+  $('#tap').addEventListener('click', e => {
+    if (n >= goal) return;
+    n++; bal += 0.01;
+    const f = document.createElement('span');
+    f.className = 'float'; f.textContent = '+$0.01';
+    f.style.left = (e.clientX || innerWidth/2) - 30 + 'px'; f.style.top = (e.clientY || innerHeight/2) - 30 + 'px';
+    document.body.appendChild(f); setTimeout(() => f.remove(), 800);
+    if (n === 33 && !crashed) {
+      crashed = true; n = 12;
+      $('#m').textContent = '📉 MARKET CRASH. Someone posted something. You lost 21 taps.';
+      shake($('#cnt'));
+    } else if (n === 20) { $('#m').textContent = 'Halfway! Your thumb is now worth $0.20.'; }
+    upd();
+    if (n >= goal) { $('#m').className = 'msg ok'; $('#m').textContent = 'Share mined. It is very small. Handle with care.'; setTimeout(next, 1400); }
+  });
+}
+
+function hold(){
+  const need = 7000;
+  render(card(`
+    <h2>Patience check.</h2>
+    <p>Hold the button for 7 full seconds. Billionaires are patient. If you let go, you start over.</p>
+    <button class="hold" id="h"><span id="hl">HOLD ME</span></button>
+    <p class="msg" id="m"></p>`));
+  const h = $('#h'), hl = $('#hl'), m = $('#m');
+  let t0 = 0, raf = 0, done = false, warned = false;
+  const loop = t => {
+    const p = Math.min(1, (t - t0) / need);
+    h.style.setProperty('--p', p);
+    const s = (t - t0) / 1000;
+    hl.textContent = s > 5.2 ? 'LET GO NOW!' : s > 3.5 ? 'Don\'t let go' : `${Math.ceil(7 - s)}…`;
+    if (s > 4 && !warned) { warned = true; toast('Are you still holding? Do not let go to confirm.'); }
+    if (p >= 1) { done = true; hl.textContent = 'VERIFIED'; m.className = 'msg ok'; m.textContent = 'Incredible patience. Ignoring instructions too. Very CEO.'; buzz(200); setTimeout(next, 1500); return; }
+    raf = requestAnimationFrame(loop);
+  };
+  h.addEventListener('pointerdown', e => {
+    if (done) return;
+    try { h.setPointerCapture(e.pointerId); } catch(_){}
+    t0 = performance.now(); warned = false; m.textContent = '';
+    raf = requestAnimationFrame(loop);
+  });
+  const stop = () => {
+    if (done || !t0) return;
+    const s = (performance.now() - t0) / 1000;
+    cancelAnimationFrame(raf); t0 = 0; h.style.setProperty('--p', 0); hl.textContent = 'HOLD ME';
+    m.textContent = s > 5.2 ? 'It said LET GO and you listened?? Rookie mistake.' : 'You let go. Classic. Start over.';
+    shake(h);
+  };
+  ['pointerup','pointercancel','lostpointercapture'].forEach(ev => h.addEventListener(ev, stop));
+  h.addEventListener('contextmenu', e => e.preventDefault());
+}
+
+function processing(){
+  const lines = ['Contacting Uncle Elon…','He left us on read…','Converting Dogecoin into feelings…','Asking Mars for permission…','Counting pennies by hand…','Rounding down…','Applying the kid discount…','Bribing the algorithm…','Almost done (lie)…'];
+  render(card(`
+    <h2>Processing your claim.</h2>
+    <p id="line">${lines[0]}</p>
+    <div class="prog"><i id="bar"></i></div>
+    <p class="big" id="pct" style="font-size:28px">0%</p>
+    <p class="fine">Do not close this page. Do not refresh this page. Do not look directly at this page.</p>`));
+  let p = 0, li = 0, back = false, ad = false, paused = false;
+  const lineT = setInterval(() => { li = (li + 1) % lines.length; $('#line').textContent = lines[li]; }, 1300);
+  const t = setInterval(() => {
+    if (paused) return;
+    p += Math.random() * 2.4;
+    if (p >= 45 && !ad) { ad = true; paused = true; showAd(() => paused = false); }
+    if (p >= 72 && !back) { back = true; p = 31; toast('Oops. Dropped some coins. Recounting.'); }
+    if (p >= 100) { p = 100; clearInterval(t); clearInterval(lineT); setTimeout(next, 600); }
+    $('#bar').style.width = p + '%'; $('#pct').textContent = Math.floor(p) + '%';
+  }, 120);
+}
+
+function showAd(done){
+  const w = modal(`
+    <p class="fine">Sponsored · You must watch this ad to continue</p>
+    <div class="ad"><h2>MARS TIMESHARES</h2><p>Ocean views!*</p><p class="fine" style="color:inherit">*No ocean. No air. Great views though.</p></div>
+    <button class="btn alt" id="skip" disabled>Skip ad in 5</button>`);
+  const b = w.querySelector('#skip');
+  let n = 5, tricked = false;
+  const tick = () => {
+    if (n > 0) { b.textContent = (tricked ? 'Nice try. Skip in ' : 'Skip ad in ') + n--; b.disabled = true; setTimeout(tick, 1000); }
+    else { b.textContent = 'Skip ad ›'; b.disabled = false; }
+  };
+  tick();
+  b.onclick = () => {
+    if (!tricked) { tricked = true; n = 3; tick(); return; }
+    w.remove(); done();
+  };
+}
+
+function fee(){
+  const opts = [['1 hug','Hug accepted. Please hug the nearest family member now. We\'ll wait.'],
+                ['Dishes tonight','Payment scheduled. The sink thanks you.'],
+                ['Compliment a sibling','Go say something nice to a sibling. Out loud. Sincerely.'],
+                ['Credit card',null]];
+  render(card(`
+    <h2>One small processing fee.</h2>
+    <p>To release your funds, a tiny fee is required. Choose a payment method:</p>
+    <div class="opts">${opts.map((o,i) => `<button class="btn alt" data-i="${i}">${o[0]}</button>`).join('')}</div>
+    <p class="msg" id="m"></p>
+    <button class="btn pink" id="ok" hidden disabled>I paid (honest)</button>`));
+  const m = $('#m'), ok = $('#ok');
+  let timer;
+  app.querySelectorAll('.opts .btn').forEach(b => b.onclick = () => {
+    const o = opts[b.dataset.i];
+    app.querySelectorAll('.opts .btn').forEach(x => x.classList.remove('on'));
+    if (!o[1]) { m.className = 'msg'; m.textContent = 'Ew. We don\'t take real money. Pick a real payment method.'; ok.hidden = true; return shake(b); }
+    b.classList.add('on'); S.fee = o[0];
+    m.className = 'msg ok'; m.textContent = o[1];
+    ok.hidden = false; ok.disabled = true;
+    let n = 5; clearInterval(timer);
+    const tick = () => { if (n > 0) ok.textContent = `Verifying payment… ${n--}`; else { clearInterval(timer); ok.textContent = 'I paid (honest)'; ok.disabled = false; } };
+    tick(); timer = setInterval(tick, 1000);
+  });
+  ok.onclick = () => { clearInterval(timer); next(); };
+}
+
+function final(){
+  S.done = true; bal = 0.03;
+  $('#bal').firstChild.nodeValue = '$0.03';
+  const no = 'DOGE-' + Math.floor(100000 + Math.random() * 899999);
+  render(`<section class="card cert">
+    <div class="eyebrow">Certificate of Claim · No. ${no}</div>
+    <h1>Congratulations, ${esc(S.name || 'Kid')}!</h1>
+    <p>You have successfully claimed your share of billionaire money.</p>
+    <div class="stamp">APPROVED-ISH</div>
+    <dl>
+      <dt>Shares</dt><dd>0.0000004</dd>
+      <dt>Value</dt><dd>$0.03 (was $0.04 a minute ago)</dd>
+      <dt>Fee paid</dt><dd>${esc(S.fee)}</dd>
+      <dt>Release</dt><dd>Your 18th birthday or the first Costco on Mars, whichever is later</dd>
+      <dt>Age on file</dt><dd>${S.age} (unverified, unbelievable)</dd>
+    </dl>
+    <p>Your money is safely stored in Uncle Elon's pocket. Do not call us. We will not call you.</p>
+    <div class="row">
+      <button class="btn" id="brag">Copy brag text</button>
+      <button class="btn alt" id="again">Claim again</button>
+    </div>
+    <p class="msg ok" id="m"></p>
+  </section>`);
+  confetti(); buzz([60,40,60]);
+  $('#brag').onclick = () => {
+    const txt = `I just claimed my Elon kid money! ${S.name || 'Me'}: 0.0000004 shares, worth $0.03. Release date: when Mars gets a Costco. 🚀💵`;
+    const ok = () => { $('#m').textContent = 'Copied. Go paste it in the family chat.'; };
+    try { navigator.clipboard.writeText(txt).then(ok, () => $('#m').textContent = 'Copy didn\'t work. Screenshot it like it\'s 2012.'); }
+    catch(e) { $('#m').textContent = 'Copy didn\'t work. Screenshot it like it\'s 2012.'; }
+  };
+  $('#again').onclick = () => {
+    Object.assign(S, { name:'', age:42, step:0, fakeTotal:7, fee:'1 hug', done:false }); bal = 0;
+    toast('Double dipping? Bold. Starting over.');
+    intro();
+  };
+}
+
+/* ---------- interruptions ---------- */
+
+function newsletter(go){
+  const w = modal(`
+    <h2>Wait! Before you continue…</h2>
+    <p>Subscribe to Uncle Elon's newsletter? 47 emails a day, all in capital letters.</p>
+    <div class="row" id="r"><button class="btn" id="y">Yes please!</button><button class="btn alt" id="n">No, I hate free money</button></div>`);
+  let swaps = 0;
+  w.querySelector('#y').onclick = () => { w.remove(); toast('Subscribed! Check your inbox. Forever.'); go(); };
+  w.querySelector('#n').onclick = () => {
+    if (swaps++ < 2) { const r = w.querySelector('#r'); r.style.flexDirection = r.style.flexDirection === 'row-reverse' ? 'row' : 'row-reverse'; buzz(40); return; }
+    w.remove(); toast('Fine. We subscribed you anyway.'); go();
+  };
+}
+
+function rating(go){
+  const w = modal(`
+    <h2>Quick survey!</h2>
+    <p>How would you rate your claiming experience so far?</p>
+    <div class="stars">${[1,2,3,4,5].map(i => `<button aria-label="${i} star${i>1?'s':''}" data-i="${i}">★</button>`).join('')}</div>
+    <p class="msg ok" id="sm"></p>`);
+  w.querySelectorAll('.stars button').forEach(b => b.onclick = () => {
+    w.querySelectorAll('.stars button').forEach(x => x.classList.add('on'));
+    w.querySelector('#sm').textContent = b.dataset.i === '5' ? 'Thanks for the 5 stars!' : `You tapped ${b.dataset.i}. We heard 5. Thanks for the 5 stars!`;
+    setTimeout(() => { w.remove(); go(); }, 1600);
+  });
+}
+
+function cookies(){
+  const c = document.createElement('div');
+  c.className = 'cookie';
+  c.innerHTML = `<p><b>This site uses cookies.</b> Mostly crumbs, honestly.</p>
+    <div class="row"><button class="btn" id="c1">Accept all</button><button class="btn alt" id="c2">Accept all, but louder</button></div>`;
+  document.body.appendChild(c);
+  c.querySelector('#c1').onclick = () => { c.remove(); toast('Cookies accepted. Crumbs are your problem now.'); };
+  c.querySelector('#c2').onclick = () => { c.remove(); toast('COOKIES ACCEPTED!!!'); };
+}
+
+function confetti(){
+  if (reduced()) return;
+  const c = document.createElement('canvas'); c.className = 'confetti'; document.body.appendChild(c);
+  const x = c.getContext('2d'), dpr = devicePixelRatio || 1, W = innerWidth, H = innerHeight;
+  c.width = W * dpr; c.height = H * dpr; x.scale(dpr, dpr);
+  const cols = ['#ffcf33','#2e8b4a','#ff3d7f','#12301d'];
+  const P = Array.from({length:140}, () => ({ x:Math.random()*W, y:-20 - Math.random()*H, vy:2 + Math.random()*3, vx:-1 + Math.random()*2,
+    r:Math.random()*6.3, vr:-.2 + Math.random()*.4, w:8 + Math.random()*10, c:cols[Math.random()*4|0], bill:Math.random() < .35 }));
+  const t0 = performance.now();
+  (function f(t){
+    x.clearRect(0, 0, W, H);
+    P.forEach(p => {
+      p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      x.save(); x.translate(p.x, p.y); x.rotate(p.r);
+      if (p.bill) { x.fillStyle = '#2e8b4a'; x.fillRect(-13,-7,26,14); x.fillStyle = '#e3eedb'; x.beginPath(); x.arc(0,0,4,0,6.3); x.fill(); }
+      else { x.fillStyle = p.c; x.fillRect(-p.w/2, -3, p.w, 6); }
+      x.restore();
+    });
+    if (t - t0 < 5500) requestAnimationFrame(f); else c.remove();
+  })(t0);
+}
+
+/* ---------- flow ---------- */
+
+const steps = [intro, age, name, terms, captcha, password, mining, hold, processing, fee, final];
+const interrupts = { 3: newsletter, 7: rating };
+
+function next(){
+  S.step++;
+  if (Math.random() < .6) S.fakeTotal++;
+  const it = interrupts[S.step];
+  it ? it(() => steps[S.step]()) : steps[S.step]();
+}
+
+intro();
+setTimeout(cookies, 700);
+</script>
+
+</body>
+</html>
